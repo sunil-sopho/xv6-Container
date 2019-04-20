@@ -91,6 +91,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  // @sunil @prabhat container ID stuff
 
   release(&ptable.lock);
 
@@ -99,6 +100,8 @@ found:
     p->state = UNUSED;
     return 0;
   }
+  // reched end of stack downward 
+  // growing
   sp = p->kstack + KSTACKSIZE;
 
   // Leave room for trap frame.
@@ -119,7 +122,7 @@ found:
 }
 
 //PAGEBREAK: 32
-// Set up first user process. @sunil @prabhat
+// Set up first user process.
 void
 userinit(void)
 {
@@ -192,7 +195,7 @@ fork(void)
     return -1;
   }
 
-  // Copy process state from proc. @sunil @prabhat
+  // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
@@ -206,8 +209,6 @@ fork(void)
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
-// @sunil @prabhat file stuff
-  // try actual copy
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
@@ -278,7 +279,7 @@ void ps_print(void){
 
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != UNUSED)
-        cprintf("pid:%d name:%s\n",p->pid,p->name);
+        cprintf("pid:%d name:%s containerID:%d \n",p->pid,p->name,p->containerID);
     }
     release(&ptable.lock);
 }
@@ -342,6 +343,7 @@ scheduler(void)
   struct cpu *c = mycpu();
   c->proc = 0;
   
+  // add a loop here possibly @sunil @prabhat
   for(;;){
     // Enable interrupts on this processor.
     sti();
