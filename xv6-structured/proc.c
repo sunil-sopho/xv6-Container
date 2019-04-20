@@ -122,7 +122,7 @@ found:
 }
 
 //PAGEBREAK: 32
-// Set up first user process.
+// Set up first user process. @sunil @prabhat
 void
 userinit(void)
 {
@@ -195,7 +195,7 @@ fork(void)
     return -1;
   }
 
-  // Copy process state from proc.
+  // Copy process state from proc. @sunil @prabhat
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
@@ -209,6 +209,8 @@ fork(void)
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
+// @sunil @prabhat file stuff
+  // try actual copy
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
@@ -279,7 +281,7 @@ void ps_print(void){
 
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != UNUSED)
-        cprintf("pid:%d name:%s containerID:%d \n",p->pid,p->name,p->containerID);
+        cprintf("pid:%d name:%s\n",p->pid,p->name);
     }
     release(&ptable.lock);
 }
@@ -343,7 +345,6 @@ scheduler(void)
   struct cpu *c = mycpu();
   c->proc = 0;
   
-  // add a loop here possibly @sunil @prabhat
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -659,56 +660,19 @@ int pidToProcid(int pid){
       return loop;
 }
 
-int sending(int rec_pid,char* msg){
-  int procId = pidToProcid(rec_pid);
-  if(procId < 0)
-    return -1;
-
-  acquire(&msgQueue[procId].lock);
-  enQueue(&msgQueue[procId],msg);
-  release(&msgQueue[procId].lock);
-    // cprintf("msg enQueued\n");
-
-  if(request[procId]){
-      request[procId] = 0;
-    // cprintf("waking procId\n");
-
-      wakeup(&ptable.proc[procId]);
-      // 
-  }
-  return 0;
-}
-
-int recv(char* msg){
-  struct proc *curproc = myproc();
-
-  // cprintf("here to get some msg plss\n");
-  int procId = pidToProcid(curproc->pid);
-  if(procId < 0)
-    return -1;
-
-  acquire(&msgQueue[procId].lock);
-  int error = deQueue(&msgQueue[procId],msg);
-  release(&msgQueue[procId].lock);
-
-  if(error < 0){
-    // msg not there yet wait
-    request[procId] =1;
-    // cprintf("msg not here yet seelping\n");
+int proc_container(int pid){
+    int loop =0;
+    // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    sleep(&ptable.proc[procId],&ptable.lock);
+    for(loop =0;loop < NPROC;loop++){
+      // cprintf("ITR : %d pid %d : %d\n",loop,ptable.proc[loop].pid,pid);
+      if(ptable.proc[loop].pid == pid){
+        release(&ptable.lock);
+        return ptable.proc[loop].containerID;
+        // break;
+      }
+    }
     release(&ptable.lock);
-    // cprintf("msg here waking\n");
-
-    acquire(&msgQueue[procId].lock);
-    deQueue(&msgQueue[procId],msg);
-    release(&msgQueue[procId].lock);
-    // cprintf("msg recieved\n");
-
-  }
-  return 0;
-}
-
-int send_multi(int ar[],char* msg,int num){
-  return 0;
+    // @sunil : should not happen
+    return -1;
 }

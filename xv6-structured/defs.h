@@ -121,9 +121,7 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void			ps_print(void);
-int 			sending(int rec_pid,char* msg);
-int 			recv(char* msg);
-int send_multi(int ar[],char* msg,int num);
+int 			proc_container(int pid);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

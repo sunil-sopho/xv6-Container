@@ -186,7 +186,7 @@ UPROGS=\
 	_add\
 	_user_ps\
 	_shutdown\
-	_container_manager\
+	_cm\
 
 fs.img: mkfs README arr $(UPROGS)
 	./mkfs fs.img README arr $(UPROGS)
@@ -255,7 +255,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	user_toggle.c print_count.c add.c user_ps.c  shutdown.c _container_manager\
+	user_toggle.c print_count.c add.c user_ps.c  shutdown.c _cm\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\

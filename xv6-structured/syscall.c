@@ -44,14 +44,14 @@ ar[21] = "sys_toggle";
 ar[22] = "sys_print_count";
 ar[23] = "sys_add";
 ar[24] = "sys_ps";
-ar[25] = "sys_send";
-ar[26] = "sys_recv";
-ar[27] = "sys_send_multi";
-ar[28] = "sys_halt";
-ar[29] = "sys_create_container";
-ar[30] = "sys_destroy_container";
-ar[31] = "sys_join_container";
-ar[32] = "sys_leave_container";
+ar[25] = "sys_halt";
+ar[26] = "sys_create_container";
+ar[27] = "sys_destroy_container";
+ar[28] = "sys_join_container";
+ar[29] = "sys_leave_container";
+ar[30] = "sys_proc_container";
+ar[31] = "sys_proc_container_num";
+ar[32] = "sys_scheduler_log_on";
 
  int num = TotaleSysNum,i=0;
       for(i=0;i<num;i++){
@@ -173,14 +173,14 @@ extern int sys_toggle(void);
 extern int sys_print_count(void);
 extern int sys_add(void);
 extern int sys_ps(void);
-extern int sys_send(void);
-extern int sys_recv(void);
 extern int sys_halt(void);
-extern int sys_send_multi(void);
 extern int sys_create_container(void);
 extern int sys_destroy_container(void);
 extern int sys_join_container(void);
 extern int sys_leave_container(void);
+extern int sys_proc_container(void);
+extern int sys_proc_container_num(void);
+extern int sys_scheduler_log_on(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -208,14 +208,14 @@ static int (*syscalls[])(void) = {
 [SYS_print_count]   sys_print_count,
 [SYS_add] sys_add,
 [SYS_ps] sys_ps,
-[SYS_send] sys_send,
-[SYS_recv] sys_recv,
-[SYS_send_multi] sys_send_multi,
 [SYS_halt] sys_halt,
 [SYS_create_container] sys_create_container,
 [SYS_destroy_container] sys_destroy_container,
 [SYS_join_container] sys_join_container,
 [SYS_leave_container] sys_leave_container,
+[SYS_proc_container] sys_proc_container,
+[SYS_proc_container_num] sys_proc_container_num,
+[SYS_scheduler_log_on] sys_scheduler_log_on,
 };
 
 void

@@ -27,15 +27,14 @@ void toggle(void);
 void print_count(void);
 int add(int num1,int num2);
 int	ps(void);
-int	send(int sender_pid,int rec_pid,void* msg);
-int	recv(void *msg);
-int	recv(void *msg);
 int halt(void);
-int send_multi(int sender_pid,int rec_pid[],void* msg,int num);
 int create_container(void);
 int destroy_container(uint container_id);
 int join_container(uint container_id);
 int leave_container(void);
+int proc_container(int pid);
+int proc_container_num(int pid);
+int scheduler_log_on(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

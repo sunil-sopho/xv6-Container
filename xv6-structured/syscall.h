@@ -24,13 +24,13 @@
 #define SYS_print_count  23
 #define SYS_add 24
 #define SYS_ps 25
-#define SYS_send 26
-#define SYS_recv 27
-#define SYS_send_multi 28
-#define SYS_halt 29
-#define SYS_create_container 30
-#define SYS_destroy_container 31
-#define SYS_join_container 32
-#define SYS_leave_container 33
+#define SYS_halt 26
+#define SYS_create_container 27
+#define SYS_destroy_container 28
+#define SYS_join_container 29
+#define SYS_leave_container 30
+#define SYS_proc_container 31
+#define SYS_proc_container_num 32
+#define SYS_scheduler_log_on 33
 #define TotaleSysNum 33
 

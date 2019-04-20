@@ -10,6 +10,7 @@
 
 int Trace=0;
 
+
 int
 sys_fork(void)
 {
@@ -139,43 +140,6 @@ int sys_ps(void){
   return 0; 
 }
 
-int sys_send(void){
-  int sender_pid,rec_pid;
-  char* msg;
-  if(argint(0,&sender_pid)<0 || argint(1,&rec_pid) < 0 || argptr(2,&msg,8) < 0)
-    return -1;
-  int error  = sending(rec_pid,msg);
-  // cprintf("sender: %d rec: %d \n",sender_pid,rec_pid);
-  return error;
-}
-
-int sys_recv(void){
-  // if(argptr(2,))
-  char* msg;
-  if( argptr(0,&msg,8) < 0){
-    return -1;
-  }
-  int error = recv(msg);
-  // cprintf("returnin with msg\n");
-  return error;
-}
-
-int sys_send_multi(void){
-  int sender_pid,num;
-  char *msg;
-  if(argint(0,&sender_pid)< 0 || argint(3,&num)<0 || argptr(2,&msg,8)<0){
-    return -1;
-  }
-  int *ar;
-  if(argintar(1,&ar,num)<0){
-    cprintf("array input problem\n");
-    return -1;
-  }
-
-  int error = send_multi(ar,msg,num);
-  return error;
-
-}
 
 
 // source https://wiki.osdev.org/Shutdown
@@ -206,9 +170,14 @@ int sys_destroy_container(void){
 }
 
 int sys_join_container(void){
-    cprintf("Entered JOIN\n");
+    int pid,containerID;
+    if(argint(0,&containerID)< 0 )
+      return -1;
+    pid=0;
+    // pid = sys_getpid();
+    // cprintf("Entered JOIN with Pid %d and container %d\n",pid,containerID);
 
-    return 0;
+    return pid;
 }
 
 int sys_leave_container(void){
@@ -218,3 +187,22 @@ int sys_leave_container(void){
 
 }
 
+// process and container mapping here
+int sys_proc_container(void){
+    int pid,val=0;
+    if(argint(0,&pid)< 0 )
+        return -1;
+    val = proc_container(pid);
+    return val;
+}
+
+int sys_proc_container_num(void){
+    int procNum=0;
+    
+    return procNum;
+}
+
+int sys_scheduler_log_on(void){
+
+    return 0;
+}
