@@ -68,7 +68,12 @@ main ( int argc , char * argv [])
 
 		// }
 		for(;;){
-			
+			if(check_schedule_log(1))
+				break;
+		}
+		for(;;){
+			if(check_schedule_log(0))
+				break;
 		}
 	}else{
 
