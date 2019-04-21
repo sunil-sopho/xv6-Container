@@ -32,5 +32,6 @@
 #define SYS_proc_container 31
 #define SYS_proc_container_num 32
 #define SYS_scheduler_log_on 33
-#define TotaleSysNum 33
+#define SYS_containerProcessNum 34
+#define TotaleSysNum 34
 

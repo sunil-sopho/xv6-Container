@@ -21,6 +21,7 @@ struct {
 } ctable;
 
 static struct proc *initproc;
+int scheduler_log = 0;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -179,7 +180,9 @@ userinit(void)
   	ctable.container[itr].state = BLANK;
   	for(itr2=0;itr2<PROCESS_COUNT;itr2++){
   		ctable.container[itr].process[itr2] = NULL;
+  		ctable.container[itr].schedulerHelper[itr2] = 0;
   	}
+  	ctable.container[itr].done = 0;
   }
 
   ctable.container[0].state = WORKING;
@@ -411,7 +414,7 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  int cntNum =0,itr=0,num=0,pid=-1;
+  int cntNum =0,itr=0,num=0,pid=-1,fault=0;
   	int curLocation[NCONT];
   	
   	// Initialize
@@ -428,10 +431,14 @@ scheduler(void)
 
 			num=0;
 			for(itr=curLocation[cntNum];num<PROCESS_COUNT;itr++){
-				itr = itr%NCONT;
+				itr = itr%PROCESS_COUNT;
 				if(ctable.container[cntNum].process[itr] != NULL){
 					pid = ctable.container[cntNum].process[itr]->pid;
 					curLocation[cntNum] = itr+1;
+					if(scheduler_log){
+						// cprintf("sheduled : %d  %d\n",pid,cntNum);
+						ctable.container[cntNum].schedulerHelper[itr] = 1;
+					}
 					break;
 				}
 				num++;
@@ -460,7 +467,7 @@ scheduler(void)
 			  switchuvm(p);
 			  p->state = RUNNING;
 
-			  if( cntNum > 0)
+			  if( cntNum > 0 && scheduler_log)
 				  cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
 
 			  swtch(&(c->scheduler), p->context);
@@ -473,7 +480,55 @@ scheduler(void)
 			  c->proc = 0;
 			}
 			release(&ptable.lock);
+
+			// check if scheduler has done it's job @sunil
+			// ============================================
+			if(scheduler_log){
+				fault = 0; // 1 -> true 0-> false
+				acquire(&ctable.lock);
+				for(itr=0;itr<PROCESS_COUNT;itr++){
+					if(ctable.container[cntNum].process[itr] != NULL){
+						if(scheduler_log){
+							if(ctable.container[cntNum].schedulerHelper[itr] != 1){
+								fault = 1;
+								break;
+							}
+						}
+					}
+				}
+				if(fault==0){
+					ctable.container[cntNum].done = 1;
+				}
+				release(&ctable.lock);
+			}
 		}
+		if(scheduler_log){
+			fault = 0;
+			// check for all @sunil do it differently :p
+			acquire(&ctable.lock);
+			
+			for(cntNum = 1;cntNum<containerNum;cntNum++ ){
+				// cprintf("SCHEDULER TEST FOR : %d  and value %d \n",cntNum,ctable.container[cntNum].done);
+				if(ctable.container[cntNum].done != 1){
+					fault = 1;
+					break;
+				}
+
+			}
+			release(&ctable.lock);
+
+			if(fault==0){
+				//all done
+				scheduler_log = 0;
+				acquire(&ctable.lock);			
+				for(cntNum = 1;cntNum<containerNum;cntNum++ ){
+					ctable.container[cntNum].done = 0;
+					for(itr=0;itr<PROCESS_COUNT;itr++)
+					ctable.container[cntNum].schedulerHelper[itr] = 0;
+				}
+				release(&ctable.lock);
+			}
+		} 
 	}
 }
 
@@ -845,6 +900,10 @@ int totaleContainers(){
 void addContainer(){
   containerNum++;
 
+  acquire(&ctable.lock);
+  ctable.container[containerNum-1].generatedProcess = 0;
+
+  release(&ctable.lock);
 }
 
 int joinContainer(int containerID){
@@ -946,4 +1005,18 @@ int joinContainer(int containerID){
 	// }
 	return pid;
 
+}
+
+void switch_scheduler_log(){
+	scheduler_log = 1;
+}
+
+int containerProcessNum(int containerID){
+	int val;
+	acquire(&ctable.lock);
+
+	val = ctable.container[containerID].generatedProcess;
+
+	release(&ctable.lock);
+	return val;
 }

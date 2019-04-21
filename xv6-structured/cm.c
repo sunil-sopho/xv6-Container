@@ -13,9 +13,9 @@ main ( int argc , char * argv [])
 	int id2 = create_container();
 	int id3 = create_container();
 
-	printf(1,"Id : %d\n",id );
-	printf(1,"Id : %d\n",id2 );
-	printf(1,"Id : %d\n",id3 );
+	// printf(1,"Id : %d\n",id );
+	// printf(1,"Id : %d\n",id2 );
+	// printf(1,"Id : %d\n",id3 );
 
 
 	int parentPid = getpid();
@@ -35,7 +35,7 @@ main ( int argc , char * argv [])
 	if(parentPid == getpid()){
 		forkVal = fork();
 		if(forkVal == 0){
-			printf(1,"pid for container 2 :: %d\n",forkVal );
+			// printf(1,"pid for container 2 :: %d\n",forkVal );
 			join_container(id2);
 		}
 	}
@@ -49,27 +49,43 @@ main ( int argc , char * argv [])
 
 	int pidCurProc = getpid();
 	int procContainer = proc_container(pidCurProc);
-	printf(1, "In Process :: %d belong to container :: %d \n",pidCurProc,procContainer);
+	// printf(1, "In Process :: %d belong to container :: %d \n",pidCurProc,procContainer);
 	// ps olny by one
 	// create sys call to get  one pid for given container ID.
 	// if (getpid() == pspid(containerId))
 	if(parentPid != pidCurProc){
 
 		//------------------ PROCESS ISOLATION ---------------------
-		if(proc_container_num(pidCurProc) == 1){
+		if(proc_container_num(pidCurProc) == 3 && procContainer == 1){
 			ps();
 		}
-		for(;;){
+		else if(proc_container_num(pidCurProc) == 1 && procContainer != 1){
+			ps();
+		}
 
+		// // BARRIER TILL ALL process join container
+		// while(containerProcessNum(id)!= 3 || containerProcessNum(id2)!=1 || containerProcessNum(id3)!=1){
+
+		// }
+		for(;;){
+			
 		}
 	}else{
 
 		/* - - - - - - - - - - - - - - - - SCHEDULER TEST - - - - - - - - - - - - - - - - - - - - - - - - */
-		
-		// scheduler_log_on ();
+		while(containerProcessNum(id)!= 3 || containerProcessNum(id2)!=1 || containerProcessNum(id3)!=1){
+
+		}
+		printf(1,"proc counts :: %d  :  %d  :  %d \n",containerProcessNum(id),containerProcessNum(id2),containerProcessNum(id3));
+		scheduler_log_on ();
 		// scheduler_log_off ();
+	
 	}
 
+
+	if(parentPid != pidCurProc){
+		// leave_container();
+	}
 
 	exit();
 }

@@ -35,6 +35,7 @@ int leave_container(void);
 int proc_container(int pid);
 int proc_container_num(int pid);
 int scheduler_log_on(void);
+int containerProcessNum(int containerID);
 
 // ulib.c
 int stat(const char*, struct stat*);

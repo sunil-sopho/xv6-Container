@@ -52,6 +52,7 @@ ar[29] = "sys_leave_container";
 ar[30] = "sys_proc_container";
 ar[31] = "sys_proc_container_num";
 ar[32] = "sys_scheduler_log_on";
+ar[32] = "sys_containerProcessNum";
 
  int num = TotaleSysNum,i=0;
       for(i=0;i<num;i++){
@@ -181,6 +182,7 @@ extern int sys_leave_container(void);
 extern int sys_proc_container(void);
 extern int sys_proc_container_num(void);
 extern int sys_scheduler_log_on(void);
+extern int sys_containerProcessNum(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -216,6 +218,7 @@ static int (*syscalls[])(void) = {
 [SYS_proc_container] sys_proc_container,
 [SYS_proc_container_num] sys_proc_container_num,
 [SYS_scheduler_log_on] sys_scheduler_log_on,
+[SYS_containerProcessNum] sys_containerProcessNum,
 };
 
 void

@@ -129,6 +129,9 @@ void addContainer();
 int joinContainer(int containerID);
 void printall();
 int proc_container_num(int pid);
+void switch_scheduler_log();
+int containerProcessNum(int containerID);
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);

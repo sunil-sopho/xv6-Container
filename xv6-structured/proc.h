@@ -67,6 +67,8 @@ struct container
 {
 	enum cntState state;
 	struct proc *process[PROCESS_COUNT];
+	int schedulerHelper[PROCESS_COUNT]; // all 0 for scheduler off
+	int done; //  for sheduler done job
 	int generatedProcess;
 	struct file *fileList;
 };

@@ -179,6 +179,7 @@ int sys_join_container(void){
 int sys_leave_container(void){
 
     cprintf("Entered LEAVE\n");
+    joinContainer(0);
     return 0;
 
 }
@@ -201,6 +202,14 @@ int sys_proc_container_num(void){
 }
 
 int sys_scheduler_log_on(void){
-    printall();
+    // printall();
+    switch_scheduler_log();
     return 0;
+}
+
+int sys_containerProcessNum(void){
+    int containerID;
+    if(argint(0,&containerID) < 0)
+        return -1;
+    return containerProcessNum(containerID);
 }
