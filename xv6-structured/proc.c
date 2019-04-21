@@ -411,16 +411,39 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  int cntNum =0;
+  int cntNum =0,itr=0,num=0,pid=-1;
+  	int curLocation[NCONT];
+  	
+  	// Initialize
+  	for(cntNum=0;cntNum<NCONT;cntNum++)
+  		curLocation[cntNum]=0;
 
 	for(;;){
 		for(cntNum = 0;cntNum<containerNum;cntNum++ ){
 			// Enable interrupts on this processor.
 			sti();
 
+			acquire(&ctable.lock);
+			// cprintf("entered checkpoint for cnt : %d \n",cntNum);
+
+			num=0;
+			for(itr=curLocation[cntNum];num<PROCESS_COUNT;itr++){
+				itr = itr%NCONT;
+				if(ctable.container[cntNum].process[itr] != NULL){
+					pid = ctable.container[cntNum].process[itr]->pid;
+					curLocation[cntNum] = itr+1;
+					break;
+				}
+				num++;
+			}
+			// cprintf("exited checkpoint for cnt : %d  with pid %d  with num pro : %d loc : %d \n",cntNum,pid,ctable.container[cntNum].generatedProcess,curLocation[cntNum]);
+			release(&ctable.lock);
 			// Loop over process table looking for process to run.
 			acquire(&ptable.lock);
 			for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+			  if(p->pid != pid)
+			  	continue;
+
 			  if(p->containerID != cntNum)
 			  	continue;
 
@@ -436,6 +459,9 @@ scheduler(void)
 			  c->proc = p;
 			  switchuvm(p);
 			  p->state = RUNNING;
+
+			  if( cntNum > 0)
+				  cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
 
 			  swtch(&(c->scheduler), p->context);
 			  switchkvm();
@@ -823,11 +849,11 @@ void addContainer(){
 
 int joinContainer(int containerID){
 
-	int i, pid;
+	int i, pid,parentpid;
 	struct proc *np;
 	struct proc *curproc = myproc();
 
-	// parentpid = curproc->pid;
+	parentpid = curproc->pid;
 
 	// Allocate process.
 	if((np = allocproc()) == 0){
@@ -841,6 +867,28 @@ int joinContainer(int containerID){
 		np->state = UNUSED;
 		return -1;
 	}
+
+  // add to container table list and update list
+  int fault = 1;
+  acquire(&ctable.lock);
+  for(i=0;i<PROCESS_COUNT;i++){
+  	if(ctable.container[containerID].process[i]==NULL){
+		ctable.container[containerID].process[i] = np;
+		ctable.container[containerID].generatedProcess++;
+  		fault = 0;
+  		break;
+  	}
+  }
+  release(&ctable.lock);
+  
+  if(fault==1){
+  	kfree(np->kstack);
+	np->kstack = 0;
+	np->state = UNUSED;
+	cprintf("Container FULL\n");
+	return -2;
+  }
+
 	np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
@@ -877,7 +925,24 @@ int joinContainer(int containerID){
 	// 	curproc->state = RUNNABLE;
 	// }
 	// if(parentpid != pid ){
-		exit();
+
+	// Lets kill parent process for this fork
+
+	acquire(&ctable.lock);
+  	for(i=0;i<PROCESS_COUNT;i++){
+  		if(ctable.container[curproc->containerID].process[i]->pid ==parentpid){
+			ctable.container[curproc->containerID].process[i] = NULL;
+			ctable.container[curproc->containerID].generatedProcess--;	
+  			fault = 0;
+  			break;
+  		}
+  	}
+  	release(&ctable.lock);
+  	if(fault==1){
+  		cprintf("COULDN'T kill parent ");
+  	}
+
+	exit();
 	// }
 	return pid;
 
