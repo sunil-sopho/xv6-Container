@@ -32,7 +32,7 @@ struct context {
   uint eip;
 };
 
-enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE,WAITING };
 
 // Per-process state
 struct proc {
@@ -58,13 +58,15 @@ struct proc {
 //   fixed-size stack
 //   expandable heap
 #define PROCESS_COUNT 10
+#define NCONT 10
 
+enum cntState {BLANK,WORKING,FAULT,OVERLOAD};
 
 // Lets Define container
 struct container
 {
-  struct proc process[PROCESS_COUNT];
-  int generatedProcess;
-  struct file *fileList;
-
+	enum cntState state;
+	struct proc *process[PROCESS_COUNT];
+	int generatedProcess;
+	struct file *fileList;
 };

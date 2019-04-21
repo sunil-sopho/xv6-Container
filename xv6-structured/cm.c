@@ -35,6 +35,7 @@ main ( int argc , char * argv [])
 	if(parentPid == getpid()){
 		forkVal = fork();
 		if(forkVal == 0){
+			printf(1,"pid for container 2 :: %d\n",forkVal );
 			join_container(id2);
 		}
 	}
@@ -58,9 +59,13 @@ main ( int argc , char * argv [])
 		if(proc_container_num(pidCurProc) == 1){
 			ps();
 		}
+		for(;;){
+
+		}
 	}else{
 
 		/* - - - - - - - - - - - - - - - - SCHEDULER TEST - - - - - - - - - - - - - - - - - - - - - - - - */
+		
 		// scheduler_log_on ();
 		// scheduler_log_off ();
 	}

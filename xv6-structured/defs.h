@@ -103,6 +103,7 @@ int             pipewrite(struct pipe*, char*, int);
 
 //PAGEBREAK: 16
 // proc.c
+
 int             cpuid(void);
 void            exit(void);
 int             fork(void);
@@ -122,6 +123,12 @@ void            wakeup(void*);
 void            yield(void);
 void			ps_print(void);
 int 			proc_container(int pid);
+// current number of container
+int totaleContainers();
+void addContainer();
+int joinContainer(int containerID);
+void printall();
+int proc_container_num(int pid);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

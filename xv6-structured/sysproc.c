@@ -153,15 +153,11 @@ sys_halt(void)
 int sys_create_container(void){
   // entered 
 
-  cprintf("Entered CREARTE\n");
-
-  return 2;
+  addContainer();
+  cprintf("container created with id %d \n",totaleContainers()-1);
+  return totaleContainers()-1;
 
 }
-
-//int sys_create_container(void){
-
-//}
 
 int sys_destroy_container(void){
     cprintf("Entered DESTROY\n");
@@ -173,10 +169,10 @@ int sys_join_container(void){
     int pid,containerID;
     if(argint(0,&containerID)< 0 )
       return -1;
-    pid=0;
-    // pid = sys_getpid();
-    // cprintf("Entered JOIN with Pid %d and container %d\n",pid,containerID);
-
+    // pid=0;
+    pid = sys_getpid();
+    cprintf("Entered JOIN with Pid %d and container %d\n",pid,containerID);
+    pid = joinContainer(containerID);
     return pid;
 }
 
@@ -197,12 +193,14 @@ int sys_proc_container(void){
 }
 
 int sys_proc_container_num(void){
-    int procNum=0;
-    
+    int procNum=0,pid;
+    if(argint(0,&pid)< 0 )
+      return -1;
+    procNum = proc_container_num(pid);
     return procNum;
 }
 
 int sys_scheduler_log_on(void){
-
+    printall();
     return 0;
 }
