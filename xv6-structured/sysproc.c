@@ -8,7 +8,7 @@
 #include "proc.h"
 #include "syscall.h"
 
-int Trace=0;
+int Trace = 0;
 
 int
 sys_fork(void)
@@ -203,6 +203,7 @@ int sys_proc_container_num(void){
 int sys_scheduler_log_on(void){
     // printall();
     switch_scheduler_log();
+    scheduler_history += 1;
     return 0;
 }
 

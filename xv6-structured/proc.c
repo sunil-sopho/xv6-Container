@@ -22,6 +22,7 @@ struct {
 
 static struct proc *initproc;
 int scheduler_log = 0;
+int scheduler_history = 0;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -1022,7 +1023,7 @@ int containerProcessNum(int containerID){
 }
 
 int check_schedule_log(int arg){
-    if(arg == scheduler_log)
+    if((arg == scheduler_log) || (arg == 1 && scheduler_history == 1))
         return 1;
     return 0;
 }
