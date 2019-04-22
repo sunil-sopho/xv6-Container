@@ -8,8 +8,8 @@
 #include "proc.h"
 #include "syscall.h"
 
-int Trace=0;
-
+int Trace = 0;
+extern int scheduler_history;
 
 int
 sys_fork(void)
@@ -111,7 +111,7 @@ int sys_toggle(void){
 
 int sys_print_count(void){
 
-   
+
 
  //   ar[23] = "sys_exit";
     if(Trace == 0)
@@ -137,7 +137,7 @@ int sys_add(void){
 int sys_ps(void){
   // count[SYS_ps-1]++;
   ps_print();
-  return 0; 
+  return 0;
 }
 
 
@@ -151,7 +151,7 @@ sys_halt(void)
 }
 
 int sys_create_container(void){
-  // entered 
+  // entered
 
   addContainer();
   cprintf("container created with id %d \n",totaleContainers()-1);
@@ -204,6 +204,7 @@ int sys_proc_container_num(void){
 int sys_scheduler_log_on(void){
     // printall();
     switch_scheduler_log();
+    scheduler_history += 1;
     return 0;
 }
 
@@ -212,4 +213,13 @@ int sys_containerProcessNum(void){
     if(argint(0,&containerID) < 0)
         return -1;
     return containerProcessNum(containerID);
+}
+
+int sys_check_schedule_log(void){
+    int arg;
+    if(argint(0,&arg) < 0)
+        return -1;
+    if(check_schedule_log(arg))
+        return 1;
+    return 0;
 }
