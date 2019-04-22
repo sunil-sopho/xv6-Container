@@ -132,6 +132,7 @@ void printall();
 int proc_container_num(int pid);
 void switch_scheduler_log();
 int containerProcessNum(int containerID);
+int check_schedule_log(int arg);
 char* conalloc(int containerID,int pid);
 
 // swtch.S
