@@ -52,10 +52,10 @@ struct cpu*
 mycpu(void)
 {
   int apicid, i;
-  
+
   if(readeflags()&FL_IF)
 	panic("mycpu called with interrupts enabled\n");
-  
+
   apicid = lapicid();
   // APIC IDs are not guaranteed to be contiguous. Maybe we should have
   // a reverse map, or reserve a register to store &cpus[i].
@@ -111,7 +111,7 @@ found:
 	p->state = UNUSED;
 	return 0;
   }
-  // reched end of stack downward 
+  // reched end of stack downward
   // growing
   sp = p->kstack + KSTACKSIZE;
 
@@ -248,7 +248,7 @@ fork(void)
   	}
   }
   release(&ctable.lock);
-  
+
   if(fault==1){
   	kfree(np->kstack);
 	np->kstack = 0;
@@ -364,7 +364,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+
   acquire(&ptable.lock);
   for(;;){
 	// Scan through table looking for exited children.
@@ -416,7 +416,7 @@ scheduler(void)
   c->proc = 0;
   int cntNum =0,itr=0,num=0,pid=-1,fault=0;
   	int curLocation[NCONT];
-  	
+
   	// Initialize
   	for(cntNum=0;cntNum<NCONT;cntNum++)
   		curLocation[cntNum]=0;
@@ -506,7 +506,7 @@ scheduler(void)
 			fault = 0;
 			// check for all @sunil do it differently :p
 			acquire(&ctable.lock);
-			
+
 			for(cntNum = 1;cntNum<containerNum;cntNum++ ){
 				// cprintf("SCHEDULER TEST FOR : %d  and value %d \n",cntNum,ctable.container[cntNum].done);
 				if(ctable.container[cntNum].done != 1){
@@ -520,7 +520,7 @@ scheduler(void)
 			if(fault==0){
 				//all done
 				scheduler_log = 0;
-				acquire(&ctable.lock);			
+				acquire(&ctable.lock);
 				for(cntNum = 1;cntNum<containerNum;cntNum++ ){
 					ctable.container[cntNum].done = 0;
 					for(itr=0;itr<PROCESS_COUNT;itr++)
@@ -528,7 +528,7 @@ scheduler(void)
 				}
 				release(&ctable.lock);
 			}
-		} 
+		}
 	}
 }
 
@@ -595,7 +595,7 @@ void
 sleep(void *chan, struct spinlock *lk)
 {
   struct proc *p = myproc();
-  
+
   if(p == 0)
 	panic("sleep");
 
@@ -713,91 +713,91 @@ procdump(void)
 
 
 
-// struct QNode 
-// { 
+// struct QNode
+// {
 //     char* msg = (char *)malloc(MSGSIZE);
-// }; 
+// };
 
 
-// struct Queue 
-// { 
+// struct Queue
+// {
 //  // char* msg = (char *)malloc(MSGSIZE);;
 //   struct QNode msgAr[20];
 //   int cur;
-//   int isFull; 
-// }; 
-// Structure of a Node 
+//   int isFull;
+// };
+// Structure of a Node
 
 // referecne https://www.geeksforgeeks.org/queue-set-2-linked-list-implementation/
-struct Node 
-{ 
-	char msg[MSGSIZE]; 
-	struct Node* link; 
-}; 
-  
-struct Queue 
-{ 
+struct Node
+{
+	char msg[MSGSIZE];
+	struct Node* link;
+};
+
+struct Queue
+{
 	struct Node *front, *rear;
 	struct spinlock lock;
-}; 
-  
-// Function to create Circular queue 
-void enQueue(struct Queue *q, char* msg) 
-{ 
-	struct Node *temp = (struct Node*)kalloc(); 
+};
+
+// Function to create Circular queue
+void enQueue(struct Queue *q, char* msg)
+{
+	struct Node *temp = (struct Node*)kalloc();
 	// Copy msg
 	int loc = 0;
 	while(loc < MSGSIZE){
 	  temp->msg[loc] = msg[loc];
 	  loc++;
 	}
-	// temp->data = value; 
-	if (q->front == NULL) 
-		q->front = temp; 
+	// temp->data = value;
+	if (q->front == NULL)
+		q->front = temp;
 	else
-		q->rear->link = temp; 
-  
-	q->rear = temp; 
-	q->rear->link = q->front; 
-} 
-  
-// Function to delete element from Circular Queue 
-int deQueue(struct Queue *q,char* msg) 
-{ 
-	if (q->front == NULL) 
-	{ 
-		cprintf ("Queue is empty"); 
-		return -1; 
-	} 
-  
-	// If this is the last node to be deleted 
-	if (q->front == q->rear) 
-	{ 
-		// value = q->front->data; 
+		q->rear->link = temp;
+
+	q->rear = temp;
+	q->rear->link = q->front;
+}
+
+// Function to delete element from Circular Queue
+int deQueue(struct Queue *q,char* msg)
+{
+	if (q->front == NULL)
+	{
+		cprintf ("Queue is empty");
+		return -1;
+	}
+
+	// If this is the last node to be deleted
+	if (q->front == q->rear)
+	{
+		// value = q->front->data;
 		int loc=0;
 		while(loc<MSGSIZE){
 		  msg[loc] = q->front->msg[loc];
 		  loc++;
 		}
-		kfree((void*)q->front); 
-		q->front = NULL; 
-		q->rear = NULL; 
-	} 
-	else  // There are more than one nodes 
-	{ 
-		struct Node *temp = q->front; 
-		// value = temp->data; 
+		kfree((void*)q->front);
+		q->front = NULL;
+		q->rear = NULL;
+	}
+	else  // There are more than one nodes
+	{
+		struct Node *temp = q->front;
+		// value = temp->data;
 		int loc = 0;
 		while(loc < MSGSIZE){
 		  msg[loc] = temp->msg[loc];
 		  loc++;
 		}
-		q->front = q->front->link; 
-		q->rear->link= q->front; 
-		kfree((void*)temp); 
-	} 
+		q->front = q->front->link;
+		q->rear->link= q->front;
+		kfree((void*)temp);
+	}
    return 0;
-} 
+}
 
 // Queue for every Proc
 struct Queue msgQueue[NPROC];
@@ -857,7 +857,7 @@ int proc_container_num(int pid){
 			release(&ptable.lock);
 			return val;
 		}
-		
+
 	}
 	release(&ptable.lock);
 	// @sunil : should not happen
@@ -939,7 +939,7 @@ int joinContainer(int containerID){
   	}
   }
   release(&ctable.lock);
-  
+
   if(fault==1){
   	kfree(np->kstack);
 	np->kstack = 0;
@@ -961,7 +961,7 @@ int joinContainer(int containerID){
 	for(i = 0; i < NOFILE; i++)
 		if(curproc->ofile[i])
 			np->ofile[i] = filedup(curproc->ofile[i]);
-	
+
 	np->cwd = idup(curproc->cwd);
 
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
@@ -991,7 +991,7 @@ int joinContainer(int containerID){
   	for(i=0;i<PROCESS_COUNT;i++){
   		if(ctable.container[curproc->containerID].process[i]->pid ==parentpid){
 			ctable.container[curproc->containerID].process[i] = NULL;
-			ctable.container[curproc->containerID].generatedProcess--;	
+			ctable.container[curproc->containerID].generatedProcess--;
   			fault = 0;
   			break;
   		}
@@ -1019,4 +1019,10 @@ int containerProcessNum(int containerID){
 
 	release(&ctable.lock);
 	return val;
+}
+
+int check_schedule_log(int arg){
+    if(arg == scheduler_log)
+        return 1;
+    return 0;
 }
