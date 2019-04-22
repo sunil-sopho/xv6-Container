@@ -91,6 +91,30 @@ kalloc(void)
     kmem.freelist = r->next;
   if(kmem.use_lock)
     release(&kmem.lock);
+  // cprintf("Memory  kalloc: %p \n",P2V((char*)r));
+
   return (char*)r;
 }
 
+char* getContainerMemory(){
+    struct run *r;
+    struct run *temp;
+    if(kmem.use_lock)
+        acquire(&kmem.lock);
+    
+    r = kmem.freelist;
+    temp = r;
+
+    int itr=0,max=20;
+    // have error handling here @sunil
+    for(itr=0;itr<max;itr++){
+        r = kmem.freelist;
+        if(r)
+            kmem.freelist = r->next;
+        // cprintf("address : %p \n",r);
+    }
+
+    if(kmem.use_lock)
+        release(&kmem.lock);
+    return (char*)temp;
+}

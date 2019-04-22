@@ -17,7 +17,7 @@ main ( int argc , char * argv [])
 	// printf(1,"Id : %d\n",id2 );
 	// printf(1,"Id : %d\n",id3 );
 
-
+	// exit();
 	int parentPid = getpid();
 	printf(1,"Parets PID: %d \n",parentPid);
 	// fork test here added to container 1
@@ -67,13 +67,16 @@ main ( int argc , char * argv [])
 		// while(containerProcessNum(id)!= 3 || containerProcessNum(id2)!=1 || containerProcessNum(id3)!=1){
 
 		// }
+		// for(;;){
+		// 	if(check_schedule_log(1))
+		// 		break;
+		// }
+		// for(;;){
+		// 	if(check_schedule_log(0))
+		// 		break;
+		// }
 		for(;;){
-			if(check_schedule_log(1))
-				break;
-		}
-		for(;;){
-			if(check_schedule_log(0))
-				break;
+
 		}
 	}else{
 
@@ -83,6 +86,9 @@ main ( int argc , char * argv [])
 		}
 		printf(1,"proc counts :: %d  :  %d  :  %d \n",containerProcessNum(id),containerProcessNum(id2),containerProcessNum(id3));
 		scheduler_log_on ();
+		// for(;;){
+			
+		// }
 		// scheduler_log_off ();
 	
 	}
