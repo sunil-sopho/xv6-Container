@@ -9,6 +9,7 @@
 #include "syscall.h"
 
 int Trace = 0;
+extern int scheduler_history;
 
 int
 sys_fork(void)
