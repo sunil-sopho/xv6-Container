@@ -60,6 +60,20 @@ struct proc {
 #define PROCESS_COUNT 10
 #define NCONT 10
 
+struct cmap {
+  void *virt;
+  uint phys_start;
+  uint phys_end;
+  int pid;
+};
+// kmap[] = {
+//  { (void*)KERNBASE, 0,             EXTMEM,    PTE_W}, // I/O space
+//  { (void*)KERNLINK, V2P(KERNLINK), V2P(data), 0},     // kern text+rodata
+//  { (void*)data,     V2P(data),     PHYSTOP,   PTE_W}, // kern data+memory
+//  { (void*)DEVSPACE, DEVSPACE,      0,         PTE_W}, // more devices
+// };
+
+
 enum cntState {BLANK,WORKING,FAULT,OVERLOAD};
 
 // Lets Define container
@@ -70,5 +84,8 @@ struct container
 	int schedulerHelper[PROCESS_COUNT]; // all 0 for scheduler off
 	int done; //  for sheduler done job
 	int generatedProcess;
+	char* startAddr;
+	int used;
+	struct cmap memory[20];
 	struct file *fileList;
 };

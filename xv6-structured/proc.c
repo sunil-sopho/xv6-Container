@@ -22,6 +22,8 @@ struct {
 
 static struct proc *initproc;
 int scheduler_log = 0;
+// @sunil Improve this later std =0 containerID change back after use
+int allocFor = 0;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -85,7 +87,7 @@ myproc(void) {
 // state required to run in the kernel.
 // Otherwise return 0.
 static struct proc*
-allocproc(void)
+allocproc()
 {
   struct proc *p;
   char *sp;
@@ -106,11 +108,18 @@ found:
 
   release(&ptable.lock);
 
-  // Allocate kernel stack.
-  if((p->kstack = kalloc()) == 0){
-	p->state = UNUSED;
-	return 0;
-  }
+  // Allocate kernel stack. @sunil get memory from container
+  if(allocFor == 0){
+	  if((p->kstack = kalloc()) == 0){
+			p->state = UNUSED;
+			return 0;
+	  }
+	}else{
+		if((p->kstack = conalloc(allocFor,p->pid)) == 0){
+			p->state = UNUSED;
+			return 0;
+		}
+	}
   // reched end of stack downward 
   // growing
   sp = p->kstack + KSTACKSIZE;
@@ -178,6 +187,7 @@ userinit(void)
   int itr=0,itr2=0;
   for(itr=0;itr<NCONT;itr++){
   	ctable.container[itr].state = BLANK;
+  	ctable.container[itr].used = 0;
   	for(itr2=0;itr2<PROCESS_COUNT;itr2++){
   		ctable.container[itr].process[itr2] = NULL;
   		ctable.container[itr].schedulerHelper[itr2] = 0;
@@ -729,14 +739,12 @@ procdump(void)
 // Structure of a Node 
 
 // referecne https://www.geeksforgeeks.org/queue-set-2-linked-list-implementation/
-struct Node 
-{ 
+struct Node { 
 	char msg[MSGSIZE]; 
 	struct Node* link; 
 }; 
   
-struct Queue 
-{ 
+struct Queue { 
 	struct Node *front, *rear;
 	struct spinlock lock;
 }; 
@@ -902,8 +910,25 @@ void addContainer(){
 
   acquire(&ctable.lock);
   ctable.container[containerNum-1].generatedProcess = 0;
-
+  // So i Guess here we get start of container Addr
+  ctable.container[containerNum-1].startAddr = getContainerMemory();
+  cprintf("Memory : %p  :-: %p \n",(ctable.container[containerNum-1].startAddr)+4096,ctable.container[containerNum-1].startAddr);
   release(&ctable.lock);
+}
+
+char* conalloc(int containerID,int pid){
+	acquire(&ctable.lock);
+	// take free space
+	int next = ctable.container[containerID].used;
+	ctable.container[containerID].used++;
+	char* mem = ctable.container[containerID].startAddr + 4096*next;
+	// struct cmap 
+	ctable.container[containerID].memory[next].virt = (void*)next;
+	ctable.container[containerID].memory[next].phys_start = (uint)mem;
+	ctable.container[containerID].memory[next].phys_end = (uint)(mem+4096);
+	ctable.container[containerID].memory[next].pid = pid;
+	release(&ctable.lock);
+	return mem;
 }
 
 int joinContainer(int containerID){
@@ -914,11 +939,17 @@ int joinContainer(int containerID){
 
 	parentpid = curproc->pid;
 
+	cprintf("Enter join\n");
+	// allocFor = containerID;
+
 	// Allocate process.
 	if((np = allocproc()) == 0){
 		return -1;
 	}
 
+	allocFor = 0;
+
+	cprintf("ALLOTED\n");
 	// Copy process state from proc. @sunil @prabhat
 	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
 		kfree(np->kstack);

@@ -68,6 +68,7 @@ char*           kalloc(void);
 void            kfree(char*);
 void            kinit1(void*, void*);
 void            kinit2(void*, void*);
+char* getContainerMemory(void);
 
 // kbd.c
 void            kbdintr(void);
@@ -131,7 +132,7 @@ void printall();
 int proc_container_num(int pid);
 void switch_scheduler_log();
 int containerProcessNum(int containerID);
-
+char* conalloc(int containerID,int pid);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
