@@ -26,7 +26,8 @@ int scheduler_log = 0;
 // @sunil Improve this later std =0 containerID change back after use
 int allocFor = 0;
 int scheduler_history = 0;
-
+int memory_log = 0;
+int memory_history =0;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -254,8 +255,11 @@ fork(void)
   acquire(&ctable.lock);
   for(i=0;i<PROCESS_COUNT;i++){
   	if(ctable.container[curproc->containerID].process[i]==NULL){
-		ctable.container[curproc->containerID].process[i] = np;
-		ctable.container[curproc->containerID].generatedProcess++;
+  		if(curproc->containerID == 0){
+  			cprintf("Forked at id : %d\n",i);
+  		}
+			ctable.container[curproc->containerID].process[i] = np;
+			ctable.container[curproc->containerID].generatedProcess++;
   		fault = 0;
   		break;
   	}
@@ -266,7 +270,29 @@ fork(void)
   	kfree(np->kstack);
 	np->kstack = 0;
 	np->state = UNUSED;
-	cprintf("Container FULL\n");
+	// @sunil @debug fast
+	cprintf("Container - FULL  %d \n",curproc->containerID);
+	acquire(&ctable.lock);
+	for(i=0;i<PROCESS_COUNT;i++){
+  	if(ctable.container[0].process[i]!=NULL){
+  		// if(curproc->containerID == 0){
+  			// cprintf("Forked at id : %d\n",i);
+  		// }
+		// ctable.container[curproc->containerID].process[i] = np;
+		// ctable.container[curproc->containerID].generatedProcess++;
+  // 		fault = 0;
+  // 		break;
+  		int pid2 = ctable.container[0].process[i]->pid;
+  		int cont2 = ctable.container[0].process[i]->containerID;
+  		// int cont = ctable.container[0].process[i].containerID;
+  		cprintf("process with pid: %d and container: %d  and id %d \n",pid2,cont2,i);
+  	}else{
+  		cprintf("NULL at id : %d -- %d \n",i,curproc->containerID);
+  	}
+  }	
+
+	release(&ctable.lock);
+	// ps_print();
 	return -2;
   }
 
@@ -480,8 +506,8 @@ scheduler(void)
 			  switchuvm(p);
 			  p->state = RUNNING;
 
-			  if( cntNum > 0 && scheduler_log)
-				  cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
+			  // if( cntNum > 0 )
+				  // cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
 
 			  swtch(&(c->scheduler), p->context);
 			  switchkvm();
@@ -491,6 +517,10 @@ scheduler(void)
 			  // if( cntNum > 0)
 			  	// p->state = WAITING;
 			  c->proc = 0;
+
+			  // if( cntNum > 0 )
+				  // cprintf("Container + %d : Leave Scheduling process + %d \n",cntNum,pid);
+
 			}
 			release(&ptable.lock);
 
@@ -915,8 +945,14 @@ void addContainer(){
   acquire(&ctable.lock);
   ctable.container[containerNum-1].generatedProcess = 0;
   // So i Guess here we get start of container Addr
-  ctable.container[containerNum-1].startAddr = getContainerMemory();
-  cprintf("Memory : %p  :-: %p \n",(ctable.container[containerNum-1].startAddr)+4096,ctable.container[containerNum-1].startAddr);
+  // ctable.container[containerNum-1].startAddr = getContainerMemory();
+  // cprintf("Memory : %p  :-: %p \n",(ctable.container[containerNum-1].startAddr)+4096,ctable.container[containerNum-1].startAddr);
+ 	int itr;
+ 	for(itr=0;itr<MCONT;itr++){
+ 		ctable.container[containerNum-1].startAddr[itr] = kalloc();
+ 	}
+
+
   release(&ctable.lock);
 }
 
@@ -925,13 +961,15 @@ char* conalloc(int containerID,int pid){
 	// take free space
 	int next = ctable.container[containerID].used;
 	ctable.container[containerID].used++;
-	char* mem = ctable.container[containerID].startAddr + 4096*next;
+	char* mem = ctable.container[containerID].startAddr[next];
 	// struct cmap 
 	ctable.container[containerID].memory[next].virt = (void*)next;
 	ctable.container[containerID].memory[next].phys_start = (uint)mem;
 	ctable.container[containerID].memory[next].phys_end = (uint)(mem+4096);
 	ctable.container[containerID].memory[next].pid = pid;
 	release(&ctable.lock);
+
+	cprintf("memory %x  of container : %d  with next : %d with pid : %d\n",mem,containerID,next,pid);
 	return mem;
 }
 
@@ -943,8 +981,8 @@ int joinContainer(int containerID){
 
 	parentpid = curproc->pid;
 
-	cprintf("Enter join\n");
-	// allocFor = containerID;
+	// cprintf("Enter join\n");
+	allocFor = containerID;
 
 	// Allocate process.
 	if((np = allocproc()) == 0){
@@ -953,7 +991,7 @@ int joinContainer(int containerID){
 
 	allocFor = 0;
 
-	cprintf("ALLOTED\n");
+	// cprintf("ALLOTED\n");
 	// Copy process state from proc. @sunil @prabhat
 	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
 		kfree(np->kstack);
@@ -1022,7 +1060,7 @@ int joinContainer(int containerID){
 
 	// Lets kill parent process for this fork
 
-	acquire(&ctable.lock);
+		acquire(&ctable.lock);
   	for(i=0;i<PROCESS_COUNT;i++){
   		if(ctable.container[curproc->containerID].process[i]->pid ==parentpid){
 			ctable.container[curproc->containerID].process[i] = NULL;
@@ -1059,5 +1097,19 @@ int containerProcessNum(int containerID){
 int check_schedule_log(int arg){
     if((arg == scheduler_log) || (arg == 1 && scheduler_history == 1))
         return 1;
+    return 0;
+}
+
+
+void switch_memory_log(){
+	memory_log = 1;
+	memory_history++;
+}
+
+int check_memory_log(int arg){
+    if(arg == 0 && memory_log == 0)
+        return 1;
+    if(arg == 1)
+    		return memory_history;
     return 0;
 }

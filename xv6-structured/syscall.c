@@ -52,8 +52,10 @@ ar[29] = "sys_leave_container";
 ar[30] = "sys_proc_container";
 ar[31] = "sys_proc_container_num";
 ar[32] = "sys_scheduler_log_on";
-ar[32] = "sys_containerProcessNum";
-ar[32] = "sys_check_schedule_log";
+ar[33] = "sys_containerProcessNum";
+ar[34] = "sys_check_schedule_log";
+ar[35] = "sys_memory_log_on";
+ar[36] = "sys_check_memory_log";
 
  int num = TotaleSysNum,i=0;
       for(i=0;i<num;i++){
@@ -185,6 +187,8 @@ extern int sys_proc_container_num(void);
 extern int sys_scheduler_log_on(void);
 extern int sys_containerProcessNum(void);
 extern int sys_check_schedule_log(void);
+extern int sys_memory_log_on(void);
+extern int sys_check_memory_log(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -222,6 +226,8 @@ static int (*syscalls[])(void) = {
 [SYS_scheduler_log_on] sys_scheduler_log_on,
 [SYS_containerProcessNum] sys_containerProcessNum,
 [SYS_check_schedule_log] sys_check_schedule_log,
+[SYS_memory_log_on] sys_memory_log_on,
+[SYS_check_memory_log] sys_check_memory_log,
 };
 
 void

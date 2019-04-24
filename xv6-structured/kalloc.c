@@ -96,7 +96,7 @@ kalloc(void)
   return (char*)r;
 }
 
-char* getContainerMemory(){
+char* getContainerMemory(void){
     struct run *r;
     struct run *temp;
     if(kmem.use_lock)
@@ -105,13 +105,14 @@ char* getContainerMemory(){
     r = kmem.freelist;
     temp = r;
 
-    int itr=0,max=20;
+    int itr=0,max=10;
     // have error handling here @sunil
     for(itr=0;itr<max;itr++){
         r = kmem.freelist;
         if(r)
             kmem.freelist = r->next;
-        // cprintf("address : %p \n",r);
+        else
+        cprintf("address : %p \n",r);
     }
 
     if(kmem.use_lock)

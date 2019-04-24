@@ -223,3 +223,18 @@ int sys_check_schedule_log(void){
         return 1;
     return 0;
 }
+
+
+int sys_memory_log_on(void){
+    // switch memory log // automatic turn off later
+    switch_memory_log();
+    scheduler_history += 1;
+    return 0;
+}
+
+int sys_check_memory_log(void){
+    int arg;
+    if(argint(0,&arg) < 0)
+        return -1;
+    return check_memory_log(arg);
+}

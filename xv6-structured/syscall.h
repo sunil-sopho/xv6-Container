@@ -34,5 +34,7 @@
 #define SYS_scheduler_log_on 33
 #define SYS_containerProcessNum 34
 #define SYS_check_schedule_log 35
-#define TotaleSysNum 35
+#define SYS_memory_log_on 36
+#define SYS_check_memory_log 37
+#define TotaleSysNum 37
 

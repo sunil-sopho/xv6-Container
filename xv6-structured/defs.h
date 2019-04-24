@@ -134,7 +134,8 @@ void switch_scheduler_log();
 int containerProcessNum(int containerID);
 int check_schedule_log(int arg);
 char* conalloc(int containerID,int pid);
-
+void switch_memory_log();
+int check_memory_log(int arg);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -75,6 +75,7 @@ main(int argc, char *argv[])
 {
   int i;
 
+  printf(1,"argc for ls is : %d \n",argc );
   if(argc < 2){
     ls(".");
     exit();

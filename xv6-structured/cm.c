@@ -68,16 +68,27 @@ main ( int argc , char * argv [])
 
 		// }
 		// for(;;){
-		// 	if(check_schedule_log(1))
-		// 		break;
-		// }
-		// for(;;){
-		// 	if(check_schedule_log(0))
-		// 		break;
+
 		// }
 		for(;;){
-
+			if(check_schedule_log(1))
+				break;
 		}
+		for(;;){
+			if(check_schedule_log(0))
+				break;
+		}
+
+		printf(1,"pid of process %d of Container %d \n",pidCurProc,procContainer);
+		// for(;;)
+		// 	if(check_memory_log(1)==1)
+		// 		break;
+		leave_container();
+
+		// void *m = container_malloc()
+		exit();
+		// create("file_"+pidCurProc);
+
 	}else{
 
 		/* - - - - - - - - - - - - - - - - SCHEDULER TEST - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -86,16 +97,32 @@ main ( int argc , char * argv [])
 		}
 		printf(1,"proc counts :: %d  :  %d  :  %d \n",containerProcessNum(id),containerProcessNum(id2),containerProcessNum(id3));
 		scheduler_log_on ();
-		// for(;;){
-			
-		// }
-		// scheduler_log_off ();
-	
+
+		// barrier for scheduler log
+		for(;;){
+			if(check_schedule_log(0))
+				break;
+		}
+
+		wait();
+
+		char *argv_c[] = { "debug","debug" };
+		exec("ls",argv_c);
+		// befor leaving this section  on memory logs
+		// memory_log_on();
+
+		// for(;;)
+		// 	if(check_memory_log(0))
+		// 		break;
+
 	}
 
 
 	if(parentPid != pidCurProc){
 		// leave_container();
+		destroy_container(id);
+		destroy_container(id2);
+		destroy_container(id3);
 	}
 
 	exit();

@@ -59,6 +59,7 @@ struct proc {
 //   expandable heap
 #define PROCESS_COUNT 10
 #define NCONT 10
+#define MCONT 10
 
 struct cmap {
   void *virt;
@@ -84,8 +85,8 @@ struct container
 	int schedulerHelper[PROCESS_COUNT]; // all 0 for scheduler off
 	int done; //  for sheduler done job
 	int generatedProcess;
-	char* startAddr;
+	char* startAddr[MCONT];
 	int used;
-	struct cmap memory[20];
+	struct cmap memory[MCONT];
 	struct file *fileList;
 };
