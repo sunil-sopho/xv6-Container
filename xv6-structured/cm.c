@@ -4,6 +4,11 @@
 # include "user.h"
 # include "date.h"
 
+#define O_RDONLY  0x000
+#define O_WRONLY  0x001
+#define O_RDWR    0x002
+#define O_CREATE  0x200
+
 
 void fileNameWithPid(int pid,char ar[]){
 	// char ar[20];
@@ -138,17 +143,99 @@ main ( int argc , char * argv [])
 		// for(;;)
 		// 	if(check_memory_log(1)==1)
 		// 		break;
+		// exit();
 
+		for(;;)
+			if(check_memory_log(1)==1)
+				break;
+			// else
+				// printf(1,"pid is stuck\n",getpid() );
+			// else
+				// printf(1,"memory_log_on : %d \n",check_memory_log(1) );
+		// leave_container();
+		// char* s = "file_"+pidCurProc;
+		char s[20];
+		fileNameWithPid(pidCurProc,s);
+		int fd =open(s,O_CREATE | O_RDWR);
+		if(fd >= 0) {
+  	      printf(1, "ok: create file succeed\n");
+	    } else {
+	        printf(1, "error: create backup file failed\n");
+	        exit();
+	    }
 
-		int pid = fork();
-		if(pid==0){
-			char *argv_c[] = { " ","." };
-			exec("ls",argv_c);
-		}else{
-			wait();
+	    close(fd);
+
+	    file_creation_log(procContainer);
+
+	    for(;;){
+	    	if(check_file_creation(procContainer)==3 && procContainer == 1){
+	    		break;
+	    	}
+	    	if(check_file_creation(procContainer)==1 && procContainer != 1){
+	    		break;
+	    	}
+	    }
+
+		// printf(1,"file created with pid %s \n",s);
+		// char s[20];
+		// containerWithId(procContainer,s);
+		// if(procContainer==1){
+		// 	char *argv_c[] = {"1"};
+		// 	exec("ls_new",argv_c);
+		// }
+		// else if(procContainer==2){
+		// 	char *argv_c[] = {"2"};
+		// 	exec("ls_new",argv_c);
+		// }
+		// else if(procContainer==3){
+		// 	char *argv_c[] = {"3"};
+		// 	exec("ls_new",argv_c);
+		// }
+		// void *m = container_malloc()
+		// for(itr=0;itr<5;itr++)
+		// 	wait();
+
+		// printf(1,"start ls  %d \n",getpid());
+		// int pid = fork();
+		// if(pid==0){
+		// 	char *argv_c[] = {"0"," fdj"};
+
+		// 	printf(1,"ls not running here %d \n",getpid() );
+		// 	exec("ls",argv_c);
+		// 	printf(1,"ls ----- here %d \n",getpid() );
+			
+		// }
+		// else {
+		// 	printf(1,"fork pid : %d\n",pid );
+		// 	wait();
+		// }
+
+		// printf(1,"end ls\n");
+
+		// exit();
+		// create("file_"+pidCurProc);
+
+		if(proc_container_num(pidCurProc) == 3 && procContainer == 1){
+			printf(1,"---------------------------------------------\n");
+			int pid = fork();
+			if(pid==0){
+				char *argv_c[] = { " ","." };
+				exec("ls",argv_c);
+			}else{
+				wait();
+			}
+		}else if(proc_container_num(pidCurProc) == 1 && procContainer != 1){
+			int pid = fork();
+			if(pid==0){
+				char *argv_c[] = { " ","." };
+				exec("ls",argv_c);
+			}else{
+				wait();
+			}
 		}
 
-		leave_container();
+		// leave_container();
 
 		// void *m = container_malloc()
 		exit();
@@ -170,13 +257,46 @@ main ( int argc , char * argv [])
 				break;
 		}
 
-		wait();
+		// int itr=0;
+		for(itr=0;itr<5;itr++)
+			wait();
 
-		char *argv_c[] = { " ","." };
+		int pid = fork();
+		if(pid==0){
+			char *argv_c[] = { " ","." };
 			exec("ls",argv_c);
+		}else{
+			wait();
+		}
 		// befor leaving this section  on memory logs
-		// memory_log_on();
+		memory_log_on();
+		pid = fork();
+		if(pid==0){
+			char *argv_c[] = { "1" };
+			exec("ls",argv_c);
+		}else{
+			wait();
+		}
 
+		pid = fork();
+		if(pid==0){
+			char *argv_c[] = { "2" };
+			exec("ls",argv_c);
+		}else{
+			wait();
+		}
+
+		pid = fork();
+		if(pid==0){
+			char *argv_c[] = { "3" };
+			exec("ls",argv_c);
+		}else{
+			wait();
+		}
+
+		
+		for(itr=0;itr<5;itr++)
+			wait();
 		// for(;;)
 		// 	if(check_memory_log(0))
 		// 		break;

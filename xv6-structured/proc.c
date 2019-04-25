@@ -20,6 +20,8 @@ struct {
 	struct container container[NCONT];
 } ctable;
 
+int files[NCONT];
+
 static struct proc *initproc;
 int scheduler_log = 0;
 
@@ -192,6 +194,8 @@ userinit(void)
   for(itr=0;itr<NCONT;itr++){
   	ctable.container[itr].state = BLANK;
   	ctable.container[itr].used = 0;
+  	// files init 0
+  	files[itr] = 0;
   	for(itr2=0;itr2<PROCESS_COUNT;itr2++){
   		ctable.container[itr].process[itr2] = NULL;
   		ctable.container[itr].schedulerHelper[itr2] = 0;
@@ -1097,4 +1101,12 @@ int check_memory_log(int arg){
     if(arg == 1)
     		return memory_history;
     return 0;
+}
+
+void file_creation_arg(int arg){
+	files[arg]++;
+}
+
+int check_file_creation(int arg){
+	return files[arg];
 }

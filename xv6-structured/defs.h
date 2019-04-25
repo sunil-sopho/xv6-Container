@@ -136,6 +136,8 @@ int check_schedule_log(int arg);
 char* conalloc(int containerID,int pid);
 void switch_memory_log();
 int check_memory_log(int arg);
+void file_creation_arg(int arg);
+int check_file_creation(int arg);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

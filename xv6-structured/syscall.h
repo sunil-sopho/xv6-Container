@@ -36,5 +36,7 @@
 #define SYS_check_schedule_log 35
 #define SYS_memory_log_on 36
 #define SYS_check_memory_log 37
-#define TotaleSysNum 37
+#define SYS_file_creation_log 38
+#define SYS_check_file_creation 39
+#define TotaleSysNum 39
 

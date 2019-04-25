@@ -39,6 +39,8 @@ int containerProcessNum(int containerID);
 int check_schedule_log(int arg);
 int memory_log_on(void);
 int check_memory_log(int arg);
+int file_creation_log(int pid);
+int check_file_creation(int val);
 
 // ulib.c
 int stat(const char*, struct stat*);

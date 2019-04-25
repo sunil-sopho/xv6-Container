@@ -238,3 +238,20 @@ int sys_check_memory_log(void){
         return -1;
     return check_memory_log(arg);
 }
+
+int sys_file_creation_log(void){
+    int arg;
+    if(argint(0,&arg) < 0 )
+        return -1;
+
+    file_creation_arg(arg);
+    return 0;
+}
+
+int sys_check_file_creation(){
+    int arg;
+    if(argint(0,&arg) < 0)
+        return -1;
+    // check file creation
+    return check_file_creation(arg);
+}

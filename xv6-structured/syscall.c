@@ -189,6 +189,9 @@ extern int sys_containerProcessNum(void);
 extern int sys_check_schedule_log(void);
 extern int sys_memory_log_on(void);
 extern int sys_check_memory_log(void);
+extern int sys_file_creation_log(void);
+extern int sys_check_file_creation(void);
+
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -228,6 +231,8 @@ static int (*syscalls[])(void) = {
 [SYS_check_schedule_log] sys_check_schedule_log,
 [SYS_memory_log_on] sys_memory_log_on,
 [SYS_check_memory_log] sys_check_memory_log,
+[SYS_file_creation_log] sys_file_creation_log,
+[SYS_check_file_creation] sys_check_file_creation
 };
 
 void
