@@ -77,6 +77,7 @@ stat(const char *n, struct stat *st)
   if(fd < 0)
     return -1;
   r = fstat(fd, st);
+  // printf(1,"here in stat for %s \n",n);
   close(fd);
   return r;
 }

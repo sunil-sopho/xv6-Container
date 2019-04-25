@@ -16,6 +16,8 @@ main(int argc, char *argv[])
     if(mkdir(argv[i]) < 0){
       printf(2, "mkdir: %s failed to create\n", argv[i]);
       break;
+    }else{
+      printf(2,"mkdir with %s \n",argv[i] );
     }
   }
 

@@ -241,6 +241,9 @@ bad:
 static struct inode*
 create(char *path, short type, short major, short minor)
 {
+
+    struct proc *p = myproc();
+  cprintf("CReated file with %s  :: %d \n\n",path,p->containerID);
   uint off;
   struct inode *ip, *dp;
   char name[DIRSIZ];
@@ -260,11 +263,13 @@ create(char *path, short type, short major, short minor)
 
   if((ip = ialloc(dp->dev, type)) == 0)
     panic("create: ialloc");
+  cprintf("CReated file with %s  :: %d \n\n",path,p->containerID);
 
   ilock(ip);
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
+  ip->containerID = p->containerID;
   iupdate(ip);
 
   if(type == T_DIR){  // Create . and .. entries.
@@ -295,9 +300,36 @@ sys_open(void)
     return -1;
 
   begin_op();
+  // lets decide location
+  struct proc *p = myproc();
+  char newPath[30]="cn";
+  // *newPath = {};
+  if(p->containerID == 1){
+    newPath[2] = '1';
+  }
+  if(p->containerID == 2){
+    newPath[2] = '2';
+  }
+  if(p->containerID == 3){
+    newPath[2] = '3';
+  }
 
+  if(p->containerID > 0){
+    newPath[3] = '-';
+  }
+  // strncpy(&newPath[12],path,strlen(path));
+  int itr=0;
+  for(itr=0;itr<strlen(path);itr++){
+    newPath[4+itr] = path[itr];
+  }
+
+  // cprintf("o file : %d %s\n",strlen(path),newPath);
   if(omode & O_CREATE){
+    if(p->containerID == 0)
     ip = create(path, T_FILE, 0, 0);
+    else
+    ip = create(newPath, T_FILE, 0, 0);
+
     if(ip == 0){
       end_op();
       return -1;
