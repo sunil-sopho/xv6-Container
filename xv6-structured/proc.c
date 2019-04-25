@@ -1110,3 +1110,32 @@ void file_creation_arg(int arg){
 int check_file_creation(int arg){
 	return files[arg];
 }
+
+int destroy_container(int arg){
+	acquire(&ctable.lock);
+
+	ctable.container[arg].state = BLANK;
+	ctable.container[arg].generatedProcess = 0;
+	ctable.container[arg].used = 0;
+	int itr=0;
+	for(itr=0;itr<PROCESS_COUNT;itr++){
+		ctable.container[arg].process[itr]= NULL;
+		ctable.container[arg].schedulerHelper[itr] =0;
+	}
+	release(&ctable.lock);
+
+	return 0;
+}
+
+int isEnd(){
+	int itr=0;
+	acquire(&ctable.lock);
+	for(itr=1;itr<containerNum-1;itr++){
+		if(ctable.container[itr].generatedProcess!=0){
+			release(&ctable.lock);
+			return 0;
+		}
+	}
+	release(&ctable.lock);
+	return 1;
+}

@@ -332,13 +332,14 @@ main ( int argc , char * argv [])
 		}
 
 
-	
+
 	    // see it works
 	    fd = open("my_file",O_RDWR);
 	    cat(fd);
 	    close(fd);
 		// void *m = container_malloc()
-		exit();
+		// exit();
+		leave_container();
 		// create("file_"+pidCurProc);
 		
 
@@ -401,15 +402,25 @@ main ( int argc , char * argv [])
 		
 		for(itr=0;itr<5;itr++)
 			wait();
-		// for(;;)
-		// 	if(check_memory_log(0))
+
+		// leave_container();
+		// for(;;){
+		// 	if(check_memory_log(1)==5)
 		// 		break;
+		// }
+
 
 	}
 
 
-	if(parentPid != pidCurProc){
+	if(parentPid == pidCurProc){
 		// leave_container();
+		for(;;){
+			if(isAllEnded()){
+				break;
+			}
+		}
+
 		destroy_container(id);
 		destroy_container(id2);
 		destroy_container(id3);

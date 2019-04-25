@@ -38,5 +38,6 @@
 #define SYS_check_memory_log 37
 #define SYS_file_creation_log 38
 #define SYS_check_file_creation 39
-#define TotaleSysNum 39
+#define SYS_isAllEnded 40
+#define TotaleSysNum 40
 

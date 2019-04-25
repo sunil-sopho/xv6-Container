@@ -54,7 +54,7 @@ ls(char *path,char* mode)
   if(strcmp(mode,"3")==0)
     mod = 3;
 
-  printf(2,"\n\n\n  mode %d \n\n",mod );
+  printf(2,"\n\n\n  contianer : %d \n\n",mod );
 
   if((fd = open(path, 0)) < 0){
     printf(2, "ls: cannot open %s\n", path);

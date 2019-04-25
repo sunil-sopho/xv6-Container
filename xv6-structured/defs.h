@@ -138,6 +138,8 @@ void switch_memory_log();
 int check_memory_log(int arg);
 void file_creation_arg(int arg);
 int check_file_creation(int arg);
+int destroy_container(int arg);
+int isEnd();
 
 // swtch.S
 void            swtch(struct context**, struct context*);

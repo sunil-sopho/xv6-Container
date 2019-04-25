@@ -41,6 +41,7 @@ int memory_log_on(void);
 int check_memory_log(int arg);
 int file_creation_log(int pid);
 int check_file_creation(int val);
+int isAllEnded(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

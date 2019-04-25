@@ -161,7 +161,10 @@ int sys_create_container(void){
 
 int sys_destroy_container(void){
     cprintf("Entered DESTROY\n");
-
+    int arg;
+    if(argint(0,&arg)< 0 )
+      return -1;
+    destroy_container(arg);
     return 0;
 }
 
@@ -248,10 +251,14 @@ int sys_file_creation_log(void){
     return 0;
 }
 
-int sys_check_file_creation(){
+int sys_check_file_creation(void){
     int arg;
     if(argint(0,&arg) < 0)
         return -1;
     // check file creation
     return check_file_creation(arg);
+}
+
+int sys_isAllEnded(void){
+  return isEnd();
 }
