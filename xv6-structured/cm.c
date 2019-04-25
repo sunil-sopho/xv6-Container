@@ -83,11 +83,22 @@ main ( int argc , char * argv [])
 		// for(;;)
 		// 	if(check_memory_log(1)==1)
 		// 		break;
+
+
+		int pid = fork();
+		if(pid==0){
+			char *argv_c[] = { " ","." };
+			exec("ls",argv_c);
+		}else{
+			wait();
+		}
+
 		leave_container();
 
 		// void *m = container_malloc()
 		exit();
 		// create("file_"+pidCurProc);
+		
 
 	}else{
 
@@ -106,8 +117,8 @@ main ( int argc , char * argv [])
 
 		wait();
 
-		char *argv_c[] = { "debug","debug" };
-		exec("ls",argv_c);
+		char *argv_c[] = { " ","." };
+			exec("ls",argv_c);
 		// befor leaving this section  on memory logs
 		// memory_log_on();
 

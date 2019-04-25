@@ -41,15 +41,15 @@ int containerNum;
 void
 pinit(void)
 {
-  initlock(&ptable.lock, "ptable");
-  // Added by @sunil
-  initlock(&ctable.lock, "ctable" );
+	initlock(&ptable.lock, "ptable");
+	// Added by @sunil
+	initlock(&ctable.lock, "ctable" );
 }
 
 // Must be called with interrupts disabled
 int
 cpuid() {
-  return mycpu()-cpus;
+	return mycpu()-cpus;
 }
 
 // Must be called with interrupts disabled to avoid the caller being
@@ -57,32 +57,32 @@ cpuid() {
 struct cpu*
 mycpu(void)
 {
-  int apicid, i;
+	int apicid, i;
 
-  if(readeflags()&FL_IF)
-	panic("mycpu called with interrupts enabled\n");
+	if(readeflags()&FL_IF)
+		panic("mycpu called with interrupts enabled\n");
 
-  apicid = lapicid();
-  // APIC IDs are not guaranteed to be contiguous. Maybe we should have
-  // a reverse map, or reserve a register to store &cpus[i].
-  for (i = 0; i < ncpu; ++i) {
-	if (cpus[i].apicid == apicid)
-	  return &cpus[i];
-  }
-  panic("unknown apicid\n");
+	apicid = lapicid();
+	// APIC IDs are not guaranteed to be contiguous. Maybe we should have
+	// a reverse map, or reserve a register to store &cpus[i].
+	for (i = 0; i < ncpu; ++i) {
+		if (cpus[i].apicid == apicid)
+			return &cpus[i];
+	}
+	panic("unknown apicid\n");
 }
 
 // Disable interrupts so that we are not rescheduled
 // while reading proc from the cpu structure
 struct proc*
 myproc(void) {
-  struct cpu *c;
-  struct proc *p;
-  pushcli();
-  c = mycpu();
-  p = c->proc;
-  popcli();
-  return p;
+	struct cpu *c;
+	struct proc *p;
+	pushcli();
+	c = mycpu();
+	p = c->proc;
+	popcli();
+	return p;
 }
 
 //PAGEBREAK: 32
@@ -252,47 +252,29 @@ fork(void)
 
   // add to container table list and update list
   int fault = 1;
-  acquire(&ctable.lock);
-  for(i=0;i<PROCESS_COUNT;i++){
-  	if(ctable.container[curproc->containerID].process[i]==NULL){
-  		if(curproc->containerID == 0){
-  			cprintf("Forked at id : %d\n",i);
-  		}
-			ctable.container[curproc->containerID].process[i] = np;
-			ctable.container[curproc->containerID].generatedProcess++;
-  		fault = 0;
-  		break;
-  	}
-  }
-  release(&ctable.lock);
-
+  if(curproc->containerID != 0){
+	  acquire(&ctable.lock);
+	  for(i=0;i<PROCESS_COUNT;i++){
+	  	if(ctable.container[curproc->containerID].process[i]==NULL){
+	  		if(curproc->containerID == 0){
+	  			cprintf("Forked at id : %d\n",i);
+	  		}
+				ctable.container[curproc->containerID].process[i] = np;
+				ctable.container[curproc->containerID].generatedProcess++;
+	  		fault = 0;
+	  		break;
+	  	}
+	  }
+	  release(&ctable.lock);
+}else{
+	fault =0;
+}
   if(fault==1){
   	kfree(np->kstack);
 	np->kstack = 0;
 	np->state = UNUSED;
 	// @sunil @debug fast
 	cprintf("Container - FULL  %d \n",curproc->containerID);
-	acquire(&ctable.lock);
-	for(i=0;i<PROCESS_COUNT;i++){
-  	if(ctable.container[0].process[i]!=NULL){
-  		// if(curproc->containerID == 0){
-  			// cprintf("Forked at id : %d\n",i);
-  		// }
-		// ctable.container[curproc->containerID].process[i] = np;
-		// ctable.container[curproc->containerID].generatedProcess++;
-  // 		fault = 0;
-  // 		break;
-  		int pid2 = ctable.container[0].process[i]->pid;
-  		int cont2 = ctable.container[0].process[i]->containerID;
-  		// int cont = ctable.container[0].process[i].containerID;
-  		cprintf("process with pid: %d and container: %d  and id %d \n",pid2,cont2,i);
-  	}else{
-  		cprintf("NULL at id : %d -- %d \n",i,curproc->containerID);
-  	}
-  }	
-
-	release(&ctable.lock);
-	// ps_print();
 	return -2;
   }
 
@@ -487,7 +469,7 @@ scheduler(void)
 			// Loop over process table looking for process to run.
 			acquire(&ptable.lock);
 			for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-			  if(p->pid != pid)
+			  if(p->pid != pid && cntNum != 0)
 			  	continue;
 
 			  if(p->containerID != cntNum)
@@ -506,8 +488,8 @@ scheduler(void)
 			  switchuvm(p);
 			  p->state = RUNNING;
 
-			  // if( cntNum > 0 )
-				  // cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
+			  if( cntNum > 0 && scheduler_log==1 )
+				  cprintf("Container + %d : Scheduling process + %d \n",cntNum,pid);
 
 			  swtch(&(c->scheduler), p->context);
 			  switchkvm();
@@ -941,7 +923,9 @@ int totaleContainers(){
 
 void addContainer(){
   containerNum++;
-
+  // sys_mkdir("container_"+containerNum-1);
+  // char *argv[3];
+  // exec("ls",argv);
   acquire(&ctable.lock);
   ctable.container[containerNum-1].generatedProcess = 0;
   // So i Guess here we get start of container Addr
@@ -951,7 +935,6 @@ void addContainer(){
  	for(itr=0;itr<MCONT;itr++){
  		ctable.container[containerNum-1].startAddr[itr] = kalloc();
  	}
-
 
   release(&ctable.lock);
 }
@@ -969,7 +952,7 @@ char* conalloc(int containerID,int pid){
 	ctable.container[containerID].memory[next].pid = pid;
 	release(&ctable.lock);
 
-	cprintf("memory %x  of container : %d  with next : %d with pid : %d\n",mem,containerID,next,pid);
+	// cprintf("memory %x  of container : %d  with next : %d with pid : %d\n",mem,containerID,next,pid);
 	return mem;
 }
 
@@ -1104,6 +1087,8 @@ int check_schedule_log(int arg){
 void switch_memory_log(){
 	memory_log = 1;
 	memory_history++;
+
+	cprintf("memory log switched : %d  memory_history %d \n",memory_log,memory_history);
 }
 
 int check_memory_log(int arg){
