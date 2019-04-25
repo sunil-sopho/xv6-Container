@@ -3,6 +3,61 @@
 # include "types.h"
 # include "user.h"
 # include "date.h"
+
+
+void fileNameWithPid(int pid,char ar[]){
+	// char ar[20];
+	ar[0] = (char)'f';
+	ar[1] = (char)'i';
+	ar[2] = (char)'l';
+	ar[3] = (char)'e';
+	ar[4] = (char)'_';
+	int size = 0,temp = pid,itr=0,val=0;
+	for(;;){
+		if(pid==0)
+			break;
+		pid /= 10;
+		size++;
+	}
+	pid = temp;
+	for(itr=0;itr<size;itr++){
+		val = pid%10;
+		pid /= 10;
+		ar[4+size-itr] = (char)('0'+val);
+	}
+
+	// return ar;
+}
+
+void containerWithId(int id,char ar[]){
+	if(id==0){
+		ar[0] = ' ';
+		ar[1] = '.';
+		ar[2] = '\0';
+	}else if(id>0){
+		ar[0] = 'c';
+		ar[1] = 'o';
+		ar[2] = 'n';
+		ar[3] = 't';
+		ar[4] = 'a';
+		ar[5] = 'i';
+		ar[6] = 'n';
+		ar[7] = 'e';
+		ar[8] = 'r';
+		ar[9] = '_';
+	}
+
+	if(id>0){
+		if(id==1)
+			ar[10] = '1';
+		else if(id==2)
+			ar[10] = '2';
+		else 
+			ar[10] = '3';
+		ar[11] = '\0';
+	}
+}
+
 int
 main ( int argc , char * argv [])
 {
