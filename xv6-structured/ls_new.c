@@ -23,12 +23,21 @@ fmtname(char *path)
 }
 
 void
-ls(char *path)
+ls(char *path,char* mode)
 {
   char buf[512], *p;
   int fd;
   struct dirent de;
   struct stat st;
+  int mod =0;
+  if(strcmp(mode,"1")==0)
+    mod = 1;
+  if(strcmp(mode,"2")==0)
+    mod = 2;
+  if(strcmp(mode,"3")==0)
+    mod = 3;
+
+  printf(2,"\n\n\n  mode %d \n\n",mod );
 
   if((fd = open(path, 0)) < 0){
     printf(2, "ls: cannot open %s\n", path);
@@ -77,10 +86,10 @@ main(int argc, char *argv[])
 
   printf(1,"argc for ls is : %d \n",argc );
   if(argc < 2){
-    ls(".");
+    ls(".",argv[0]);
     exit();
   }
   for(i=1; i<argc; i++)
-    ls(argv[i]);
+    ls(argv[i],argv[0]);
   exit();
 }

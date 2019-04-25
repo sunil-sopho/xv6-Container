@@ -273,7 +273,7 @@ main ( int argc , char * argv [])
 		pid = fork();
 		if(pid==0){
 			char *argv_c[] = { "1" };
-			exec("ls",argv_c);
+			exec("ls_new",argv_c);
 		}else{
 			wait();
 		}
@@ -281,7 +281,7 @@ main ( int argc , char * argv [])
 		pid = fork();
 		if(pid==0){
 			char *argv_c[] = { "2" };
-			exec("ls",argv_c);
+			exec("ls_new",argv_c);
 		}else{
 			wait();
 		}
@@ -289,7 +289,7 @@ main ( int argc , char * argv [])
 		pid = fork();
 		if(pid==0){
 			char *argv_c[] = { "3" };
-			exec("ls",argv_c);
+			exec("ls_new",argv_c);
 		}else{
 			wait();
 		}
