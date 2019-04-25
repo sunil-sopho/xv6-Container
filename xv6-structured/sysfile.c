@@ -295,17 +295,50 @@ sys_open(void)
     return -1;
 
   begin_op();
+  struct proc *p = myproc();
+  char newPath[30]="cn";
+  // *newPath = {};
+  if(p->containerID == 1){
+    newPath[2] = '1';
+  }
+  if(p->containerID == 2){
+    newPath[2] = '2';
+  }
+  if(p->containerID == 3){
+    newPath[2] = '3';
+  }
 
+  if(p->containerID > 0){
+    newPath[3] = '-';
+  }
+  // strncpy(&newPath[12],path,strlen(path));
+  int itr=0;
+  for(itr=0;itr<strlen(path);itr++){
+    newPath[4+itr] = path[itr];
+  }
+
+  // cprintf("o file : %d %s\n",strlen(path),newPath);
   if(omode & O_CREATE){
+    if(p->containerID == 0)
     ip = create(path, T_FILE, 0, 0);
+    else
+    ip = create(newPath, T_FILE, 0, 0);
+
     if(ip == 0){
       end_op();
       return -1;
     }
   } else {
-    if((ip = namei(path)) == 0){
-      end_op();
-      return -1;
+    if(p->containerID == 0){
+      if((ip = namei(path)) == 0){
+        end_op();
+        return -1;
+      }
+    }else{
+      if((ip = namei(newPath)) == 0){
+        end_op();
+        return -1;
+      }
     }
     ilock(ip);
     if(ip->type == T_DIR && omode != O_RDONLY){

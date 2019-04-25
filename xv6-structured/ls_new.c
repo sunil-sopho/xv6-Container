@@ -10,7 +10,7 @@ fmtname(char *path)
   char *p;
 
   // Find first character after last slash.
-  for(p=path+strlen(path); p >= path && *p != '/'; p--)
+  for(p=path+strlen(path); p >= path && *p != '/' &&*p!='-'; p--)
     ;
   p++;
 
@@ -20,6 +20,23 @@ fmtname(char *path)
   memmove(buf, p, strlen(p));
   memset(buf+strlen(p), ' ', DIRSIZ-strlen(p));
   return buf;
+}
+
+int checker(char* name,int mode){
+  int len = strlen(name);
+  if(len<4)
+    return 1;
+  if(name[0]=='c' && name[1]=='n' && name[3] == '-'){
+    int val = name[2]-'0';
+    if(val==mode){
+      return 2;
+    }
+    else{
+      return -1;
+    }
+  }else{
+    return 3;
+  }
 }
 
 void
@@ -66,6 +83,10 @@ ls(char *path,char* mode)
     while(read(fd, &de, sizeof(de)) == sizeof(de)){
       if(de.inum == 0)
         continue;
+      int value = checker(de.name,mod);
+      if(value<0)
+        continue;
+
       memmove(p, de.name, DIRSIZ);
       p[DIRSIZ] = 0;
       if(stat(buf, &st) < 0){

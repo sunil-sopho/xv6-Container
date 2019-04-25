@@ -9,6 +9,24 @@
 #define O_RDWR    0x002
 #define O_CREATE  0x200
 
+char buf[512];
+
+void
+cat(int fd)
+{
+  int n;
+
+  while((n = read(fd, buf, sizeof(buf))) > 0) {
+    if (write(1, buf, n) != n) {
+      printf(1, "cat: write error\n");
+      exit();
+    }
+  }
+  if(n < 0){
+    printf(1, "cat: read error\n");
+    exit();
+  }
+}
 
 void fileNameWithPid(int pid,char ar[]){
 	// char ar[20];
@@ -60,6 +78,23 @@ void containerWithId(int id,char ar[]){
 		else 
 			ar[10] = '3';
 		ar[11] = '\0';
+	}
+}
+
+void catstring(char ar[],int pid){
+	int size = 0,temp = pid,itr=0,val=0;
+	for(;;){
+		if(pid==0)
+			break;
+		pid /= 10;
+		size++;
+	}
+	pid = temp;
+	int shift= strlen(ar);
+	for(itr=0;itr<size;itr++){
+		val = pid%10;
+		pid /= 10;
+		ar[shift+size-itr] = (char)('0'+val);
 	}
 }
 
@@ -216,27 +251,92 @@ main ( int argc , char * argv [])
 		// exit();
 		// create("file_"+pidCurProc);
 
+			for(;;)
+			if(check_memory_log(1)==2)
+				break;
+
 		if(proc_container_num(pidCurProc) == 3 && procContainer == 1){
-			printf(1,"---------------------------------------------\n");
-			int pid = fork();
-			if(pid==0){
-				char *argv_c[] = { " ","." };
-				exec("ls",argv_c);
-			}else{
-				wait();
-			}
+			// printf(1,"---------------------------------------------\n");
+			// int pid = fork();
+			// if(pid==0){
+			// 	char *argv_c[] = { " ","." };
+			// 	exec("ls",argv_c);
+			// }else{
+			// 	wait();
+			// }
+			// char s[20];
+			// fileNameWithPid(pidCurProc,s);
+			// struct writer t;
+		    // t.name = ;
+		    // t.number = 1;
+
+			fd =open("my_file",O_CREATE | O_RDWR);
+			if(fd >= 0) {
+	  	      printf(1, "ok: create file succeed\n");
+		    } else {
+		        printf(1, "error: create backup file failed\n");
+		        exit();
+		    }
+
+		    char t[20] = "Modified by : ";
+		    catstring(t,pidCurProc);
+
+
+		    int size = sizeof(t);
+		    if(write(fd,t, size) != size){
+		        printf(1, "error: write to backup file failed\n");
+		        exit();
+		    }
+
+		    close(fd);
+		    printf(1, "write ok\n");
+
+		    memory_log_on();
+
+
 		}else if(proc_container_num(pidCurProc) == 1 && procContainer != 1){
-			int pid = fork();
-			if(pid==0){
-				char *argv_c[] = { " ","." };
-				exec("ls",argv_c);
-			}else{
-				wait();
-			}
+			// int pid = fork();
+			// if(pid==0){
+			// 	char *argv_c[] = { " ","." };
+			// 	exec("ls",argv_c);
+			// }else{
+			// 	wait();
+			// }
+			fd =open("my_file",O_CREATE | O_RDWR);
+			if(fd >= 0) {
+	  	      printf(1, "ok: create file succeed\n");
+		    } else {
+		        printf(1, "error: create backup file failed\n");
+		        exit();
+		    }
+
+			char t[20] = "Modified by : ";
+		    catstring(t,pidCurProc);
+
+
+		    int size = sizeof(t);
+		    if(write(fd,t, size) != size){
+		        printf(1, "error: write to backup file failed\n");
+		        exit();
+		    }
+		    close(fd);
+
+		    memory_log_on();
+		    printf(1, "write ok\n");
 		}
 
 		// leave_container();
+		for(;;){
+			if(check_memory_log(1)==5)
+				break;
+		}
 
+
+	
+	    // see it works
+	    fd = open("my_file",O_RDWR);
+	    cat(fd);
+	    close(fd);
 		// void *m = container_malloc()
 		exit();
 		// create("file_"+pidCurProc);
@@ -270,6 +370,8 @@ main ( int argc , char * argv [])
 		}
 		// befor leaving this section  on memory logs
 		memory_log_on();
+
+
 		pid = fork();
 		if(pid==0){
 			char *argv_c[] = { "1" };
@@ -293,6 +395,8 @@ main ( int argc , char * argv [])
 		}else{
 			wait();
 		}
+
+		memory_log_on();
 
 		
 		for(itr=0;itr<5;itr++)
